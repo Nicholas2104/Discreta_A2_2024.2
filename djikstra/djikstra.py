@@ -1,10 +1,16 @@
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("T_T100I_SEGMENT_ALL_CARRIER.csv", sep=';')
+df = pd.read_csv("Dados_Estatisticos.csv", sep=';')
+
+# Removendo linhas nulas
+df_clean = df.dropna(subset=['DECOLAGENS','AEROPORTO_DE_ORIGEM_SIGLA', 'AEROPORTO_DE_DESTINO_SIGLA', 
+                     'DISTANCIA_VOADA_KM'])
+
+df_cleaner = df_clean.query("AEROPORTO_DE_ORIGEM_SIGLA != 'N/I' and AEROPORTO_DE_DESTINO_SIGLA != 'N/I'")
 
 # Cria uma lista de todos os aeroportos
-airports = list(set(df['ORIGIN']).union(set(df['DEST'])))
+airports = list(set(df_cleaner['AEROPORTO_DE_ORIGEM_SIGLA']).union(set(df_cleaner['AEROPORTO_DE_DESTINO_SIGLA'])))
 airport_idx = {airport: idx for idx, airport in enumerate(airports)} # Mapeia aeroportos para índices
 
 # Inicializa a matriz com infinito nas entradas
@@ -12,11 +18,12 @@ n = len(airports)
 adj_matrix = np.full((n,n), float('inf'))
 
 # Preenche as entradas da matriz com as distâncias
-for _, row in df.iterrows():
-    origin = airport_idx[row['ORIGIN']]
-    destination = airport_idx[row['DEST']]
-    distance = row['DISTANCE']
-    adj_matrix[origin][destination] = distance 
+for _, row in df_cleaner.iterrows():
+    origin = airport_idx[row['AEROPORTO_DE_ORIGEM_SIGLA']]
+    destination = airport_idx[row['AEROPORTO_DE_DESTINO_SIGLA']]
+    if row['DECOLAGENS'] and row['DISTANCIA_VOADA_KM'] > 0:
+        distance = row['DISTANCIA_VOADA_KM']//row['DECOLAGENS'] # Distancia por decolagem (DISTANCIA_VOADA_KM é acumulada mensalmente)
+        adj_matrix[origin][destination] = distance 
 
 def dijkstra(adj_matrix: list[list[float]], start_idx: int, end_idx: int) -> tuple[list[str], float]:
     n = len(adj_matrix)
@@ -52,13 +59,13 @@ def dijkstra(adj_matrix: list[list[float]], start_idx: int, end_idx: int) -> tup
     path = []
     current = end_idx
     while current is not None:
-        path.insert(0, airports[current])
+        path.insert(0, airports[current], )
         current = predecessors[current]
 
     if distances[end_idx] == float('inf'):
         # Nenhum caminho foi encontrado
         return None, float('inf') 
-    return path, distances[end_idx] # retorna o caminho e a distancia em milhas
+    return path, distances[end_idx] # retorna o caminho e a distancia em km
 
 origin_airport = input("Insira o aeroporto de origem:")
 destination_airport = input("Insira o aeroporto de destino:")
