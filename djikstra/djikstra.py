@@ -67,16 +67,20 @@ def dijkstra(adj_matrix: list[list[float]], start_idx: int, end_idx: int) -> tup
         return None, float('inf') 
     return path, distances[end_idx] # retorna o caminho e a distancia em km
 
-origin_airport = input("Insira o aeroporto de origem:")
-destination_airport = input("Insira o aeroporto de destino:")
+while True:
+    origin_airport = input("Insira o aeroporto de origem:")
+    destination_airport = input("Insira o aeroporto de destino:")
 
-start_idx = airport_idx[origin_airport]
-end_idx = airport_idx[destination_airport]
+    start_idx = airport_idx[origin_airport]
+    end_idx = airport_idx[destination_airport]
 
-path, length = dijkstra(adj_matrix, start_idx, end_idx)
+    path, length = dijkstra(adj_matrix, start_idx, end_idx)
 
-if path:
-    print(f"A rota mais curta de {origin_airport} para {destination_airport} é: {path}")
-    print(f"A distância total é: {length}")
-else:
-    print(f"Nenhum caminho foi encontrado!")
+    if path:
+        print(f"A rota mais curta de {origin_airport} para {destination_airport} é: {path}")
+        print(f"A distância total é: {length}")
+    else:
+        print(f"Nenhum caminho foi encontrado!")
+        break
+
+    
