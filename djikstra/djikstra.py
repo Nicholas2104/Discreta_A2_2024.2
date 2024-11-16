@@ -7,6 +7,7 @@ df = pd.read_csv("Dados_Estatisticos.csv", sep=';')
 df_clean = df.dropna(subset=['DECOLAGENS','AEROPORTO_DE_ORIGEM_SIGLA', 'AEROPORTO_DE_DESTINO_SIGLA', 
                      'DISTANCIA_VOADA_KM'])
 
+# Removendo aeroportos com siglas não informadas
 df_cleaner = df_clean.query("AEROPORTO_DE_ORIGEM_SIGLA != 'N/I' and AEROPORTO_DE_DESTINO_SIGLA != 'N/I'")
 
 # Cria uma lista de todos os aeroportos
@@ -42,12 +43,12 @@ def dijkstra(adj_matrix: list[list[float]], start_idx: int, end_idx: int) -> tup
                 min_distance = distances[i]
                 min_node = i
 
-        if min_node is None: # nós disponiveis ja visitados
+        if min_node is None: # Nós disponiveis ja visitados
             break 
 
         visited[min_node] = True
 
-        # Atualiza a distancia para os vizinhos do nó que esta sendo observado
+        # Atualiza a distância para os vizinhos do nó que esta sendo observado
         for neighbor in range(n):
             if adj_matrix[min_node][neighbor] != float('inf') and not visited[neighbor]:
                 new_dist = distances[min_node] + adj_matrix[min_node][neighbor]
@@ -55,7 +56,7 @@ def dijkstra(adj_matrix: list[list[float]], start_idx: int, end_idx: int) -> tup
                     distances[neighbor] = new_dist
                     predecessors[neighbor] = min_node
 
-    # Constroi o caminho
+    # Constrói o caminho
     path = []
     current = end_idx
     while current is not None:
@@ -65,8 +66,9 @@ def dijkstra(adj_matrix: list[list[float]], start_idx: int, end_idx: int) -> tup
     if distances[end_idx] == float('inf'):
         # Nenhum caminho foi encontrado
         return None, float('inf') 
-    return path, distances[end_idx] # retorna o caminho e a distancia em km
+    return path, distances[end_idx] # Retorna o caminho e a distancia em km
 
+# Uso do codigo
 while True:
     origin_airport = input("Insira o aeroporto de origem:")
     destination_airport = input("Insira o aeroporto de destino:")
