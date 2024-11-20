@@ -46,8 +46,8 @@ def dfs(adj_matrix, airports_list, origin: str, destiny: str):
 def ford_fulkerson(archive_path: str, origin: str, destiny: str, capacity_column : str):
 
     # Carrega a matrix e a lista de aeroportos para a função bfs e inicializa a lista com as capacidades minimas de cada caminho
-    adj_matrix = np.load("ford_fulkerson/adj_matrix.npy")
-    airports_list = np.load("ford_fulkerson/airports_list.npy").tolist()
+    adj_matrix = np.load(f"{archive_path}/adj_matrix.npy")
+    airports_list = np.load(f"{archive_path}/airports_list.npy").tolist()
     airports_list
     minimum_capacities = []
 
@@ -91,4 +91,4 @@ def ford_fulkerson(archive_path: str, origin: str, destiny: str, capacity_column
 # aplica a função ford_fulkerson
 origin = input('Insira o aeroporto fonte: ')
 destiny = input('Insira o aeroporto destino: ')
-ford_fulkerson("djikstra/Dados_Estatisticos.csv", origin, destiny, 'ASSENTOS')
+ford_fulkerson("ford_fulkerson", origin, destiny, 'ASSENTOS')
