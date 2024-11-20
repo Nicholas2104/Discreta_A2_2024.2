@@ -1,6 +1,6 @@
 import numpy as np
 
-# essa função aplica Deep-First Search no grafo de voos para encontrar uma caminho qualquer
+# Essa função aplica Deep-First Search no grafo de voos para encontrar uma caminho qualquer
 def dfs(adj_matrix, airports_list, origin: str, destiny: str):
 
     # Encontram o indice do aeroporto de origem e destino na lista de aeroportos (devolve uma mensagem caso os aeroportos são sejam achados)    
@@ -13,12 +13,12 @@ def dfs(adj_matrix, airports_list, origin: str, destiny: str):
 
     # Inicializa a lista que vai carregar o caminho final, a conjunto de vertices visitados e adiciona a origem nele
     path = [origin_index]
-    visited_nodes = set()  # Use a set for faster membership checks
+    visited_nodes = set()
     visited_nodes.add(origin_index)
 
     # Esse bloco é o loop principal do algoritmo de bfs
     while path:
-        # o vertice atual é o ultimo da lista que carrega o caminho
+        # O vertice atual é o ultimo da lista que carrega o caminho
         current_node = path[-1] 
 
         # Se o vertice atual é o que queremos, retornamos o caminho
@@ -56,27 +56,27 @@ def ford_fulkerson(archive_path: str, origin: str, destiny: str, capacity_column
     # até todos os caminhos estarem saturados e não existir mais caminhos com capacidade disponivel
     while True:
 
-        # aplica dfs no grafo atual
+        # Aplica dfs no grafo atual
         current_result = dfs(adj_matrix, airports_list, origin, destiny)
 
-        # se não existir mais caminhos para o loop
+        # Se não existir mais caminhos para o loop
         if current_result == None:
             break
 
-        # inicializa a lista das capacidades e das arestas
+        # Inicializa a lista das capacidades e das arestas
         capacities = []
         edges = []
 
-        # preenche as listas criadas
+        # Preenche as listas criadas
         for i in range(len(current_result)-1):
             capacities.append(adj_matrix[current_result[i]][current_result[i+1]])
             edges.append((current_result[i],current_result[i+1]))
 
-        # encontra a capacidade minima e guarda ela na lista de capacidades minimas
+        # Encontra a capacidade minima e guarda ela na lista de capacidades minimas
         min_capacity = min(capacities)
         minimum_capacities.append(min_capacity)
 
-        # atualiza as capacidades das arestas do caminho para o diferença entre a capacidade e o fluxo atual
+        # Atualiza as capacidades das arestas do caminho para o diferença entre a capacidade e o fluxo atual
         for i in edges:
             adj_matrix[i[0]][i[1]] = adj_matrix[i[0]][i[1]] - min_capacity
 
