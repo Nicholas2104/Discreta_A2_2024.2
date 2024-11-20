@@ -1,42 +1,4 @@
-import pandas as pd
 import numpy as np
-
-# Essa função processa o CSV com os voos
-def processing_csv(archive_path: str):
-
-    # carrega o dataframe do local indicado
-    df = pd.read_csv(archive_path, sep=';')
-
-    # filtra os voos regulares (comuns)
-    df = df[df["GRUPO_DE_VOO"] == 'REGULAR']
-
-    # tira a media por voo de assentos e payload
-    df['ASSENTOS'] /= df['DECOLAGENS']
-    df['PAYLOAD'] /= df['DECOLAGENS']
-
-    # agrupa os voos de todas os meses e anos pela m[edia de assentos
-    df = df.groupby(["AEROPORTO_DE_ORIGEM_SIGLA", 'AEROPORTO_DE_DESTINO_SIGLA'])['ASSENTOS'].mean().reset_index()
-
-    # filtra voo que tem mais de 0 assentos e arredonda caso tenha algum fracionario
-    df = df[df['ASSENTOS'] > 0]
-    df['ASSENTOS'] = np.round(df['ASSENTOS'])
-
-    # filtra valores N/A
-    df = df.dropna().reset_index()
-
-    # Cria uma lista com os aeroportos e uma matrix quadrada com o mesmo tamanho
-    airports_list = sorted(pd.unique(df[['AEROPORTO_DE_ORIGEM_SIGLA', 'AEROPORTO_DE_DESTINO_SIGLA']].values.ravel()))
-    adj_matrix = np.full((len(airports_list),len(airports_list)), 0)
-
-    # Completa a matrix de adjacencia com as capacidades
-    for _, row in df.iterrows():
-        origin_idx = airports_list.index(row['AEROPORTO_DE_ORIGEM_SIGLA'])
-        dest_idx = airports_list.index(row['AEROPORTO_DE_DESTINO_SIGLA'])
-        adj_matrix[origin_idx, dest_idx] = row['ASSENTOS']
-
-    df.to_csv('ford_fulkerson/dados_limpos.csv')
-
-    return adj_matrix, airports_list
 
 # essa função aplica Deep-First Search no grafo de voos para encontrar uma caminho qualquer
 def dfs(adj_matrix, airports_list, origin: str, destiny: str):
@@ -81,10 +43,12 @@ def dfs(adj_matrix, airports_list, origin: str, destiny: str):
     return None
 
 # essa função aplica o algoritmo de Ford Fulkerson para encontrar o fluxo maximo entre dois aeroportos
-def ford_fulkerson(archive_path: str, origin: str, destiny: str):
+def ford_fulkerson(archive_path: str, origin: str, destiny: str, capacity_column : str):
 
-    # Cria a matrix e a lista de aeroportos para a função bfs e a lista com as capacidades minimas de cada caminho
-    adj_matrix, airports_list = processing_csv(archive_path)
+    # Carrega a matrix e a lista de aeroportos para a função bfs e inicializa a lista com as capacidades minimas de cada caminho
+    adj_matrix = np.load("ford_fulkerson/adj_matrix.npy")
+    airports_list = np.load("ford_fulkerson/airports_list.npy").tolist()
+    airports_list
     minimum_capacities = []
 
     # Esse é o loop principal do algoritmo, onde vão sendo encontrados caminhos com a função dfs,
@@ -127,4 +91,4 @@ def ford_fulkerson(archive_path: str, origin: str, destiny: str):
 # aplica a função ford_fulkerson
 origin = input('Insira o aeroporto fonte: ')
 destiny = input('Insira o aeroporto destino: ')
-ford_fulkerson("djikstra/Dados_Estatisticos.csv", origin, destiny)
+ford_fulkerson("djikstra/Dados_Estatisticos.csv", origin, destiny, 'ASSENTOS')
