@@ -4,14 +4,17 @@ import numpy as np
 df = pd.read_csv("Dados_Estatisticos.csv", sep=';')
 
 # Removendo linhas nulas
-df_clean = df.dropna(subset=['DECOLAGENS','AEROPORTO_DE_ORIGEM_SIGLA', 'AEROPORTO_DE_DESTINO_SIGLA', 
+df = df.dropna(subset=['DECOLAGENS','AEROPORTO_DE_ORIGEM_SIGLA', 'AEROPORTO_DE_DESTINO_SIGLA', 
                      'DISTANCIA_VOADA_KM'])
 
 # Removendo aeroportos com siglas não informadas
-df_cleaner = df_clean.query("AEROPORTO_DE_ORIGEM_SIGLA != 'N/I' and AEROPORTO_DE_DESTINO_SIGLA != 'N/I'")
+df = df.query("AEROPORTO_DE_ORIGEM_SIGLA != 'N/I' and AEROPORTO_DE_DESTINO_SIGLA != 'N/I'")
+
+# Filtra apenas para os voos de transporte de passageiros
+df = df[df[ "GRUPO_DE_VOO" ] == 'REGULAR']
 
 # Cria uma lista de todos os aeroportos
-airports = list(set(df_cleaner['AEROPORTO_DE_ORIGEM_SIGLA']).union(set(df_cleaner['AEROPORTO_DE_DESTINO_SIGLA'])))
+airports = list(set(df['AEROPORTO_DE_ORIGEM_SIGLA']).union(set(df['AEROPORTO_DE_DESTINO_SIGLA'])))
 airport_idx = {airport: idx for idx, airport in enumerate(airports)} # Mapeia aeroportos para índices
 
 # Inicializa a matriz com infinito nas entradas
@@ -19,7 +22,7 @@ n = len(airports)
 adj_matrix = np.full((n,n), float('inf'))
 
 # Preenche as entradas da matriz com as distâncias
-for _, row in df_cleaner.iterrows():
+for _, row in df.iterrows():
     origin = airport_idx[row['AEROPORTO_DE_ORIGEM_SIGLA']]
     destination = airport_idx[row['AEROPORTO_DE_DESTINO_SIGLA']]
     if row['DECOLAGENS'] and row['DISTANCIA_VOADA_KM'] > 0:
